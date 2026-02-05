@@ -2,7 +2,7 @@
   "name": "hrm",
   "private": true,
   "version": "0.0.1",
-  "packageManager": "pnpm@latest",
+  "packageManager": "pnpm@10.4.0",
   "scripts": {
     "dev:api": "pnpm --filter api start:dev"
   }
