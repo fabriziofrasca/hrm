@@ -1,7 +1,10 @@
-import { PrismaClient, Role } from "@prisma/client";
+import "dotenv/config";
+import { Role } from "@prisma/client";
 import bcrypt from "bcrypt";
+import { PrismaService } from "../src/prisma/prisma.service";
 
-const prisma = new PrismaClient();
+const prisma = new PrismaService();
+
 
 async function main() {
   // 3 sedi (metti le coordinate reali quando vuoi)
