@@ -1,14 +1,116 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
-generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
-}
-
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  SUPER_ADMIN
+  HR_ADMIN
+  MANAGER
+  EMPLOYEE
+}
+
+enum PunchType {
+  IN
+  OUT
+}
+
+enum PunchMethod {
+  GEOLOCATION
+}
+
+enum PunchStatus {
+  ACCEPTED
+  REJECTED
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  role      Role     @default(EMPLOYEE)
+
+  employee  Employee?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Workplace {
+  id        String   @id @default(cuid())
+  name      String
+
+  lat       Decimal  @db.Decimal(10, 7)
+  lon       Decimal  @db.Decimal(10, 7)
+  radiusM   Int      @default(120)
+
+  isActive  Boolean  @default(true)
+
+  employees Employee[]
+  punches   Punch[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([isActive])
+}
+
+model Employee {
+  id           String    @id @default(cuid())
+  userId       String    @unique
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  firstName    String
+  lastName     String
+  badgeCode    String?   @unique
+  isActive     Boolean   @default(true)
+
+  workplaceId  String
+  workplace    Workplace @relation(fields: [workplaceId], references: [id])
+
+  hireDate     DateTime?
+
+  punches      Punch[]
+
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([workplaceId])
+  @@index([isActive])
+}
+
+model Punch {
+  id           String      @id @default(cuid())
+
+  employeeId   String
+  employee     Employee    @relation(fields: [employeeId], references: [id])
+
+  workplaceId  String
+  workplace    Workplace   @relation(fields: [workplaceId], references: [id])
+
+  type         PunchType
+  method       PunchMethod @default(GEOLOCATION)
+
+  lat          Decimal     @db.Decimal(10, 7)
+  lon          Decimal     @db.Decimal(10, 7)
+  accuracyM    Int
+
+  distanceM    Int
+  allowedM     Int
+  status       PunchStatus
+  rejectReason String?
+
+  deviceId     String?
+  userAgent    String?
+
+  occurredAt   DateTime
+  createdAt    DateTime    @default(now())
+
+  @@index([employeeId, occurredAt])
+  @@index([workplaceId, occurredAt])
+  @@index([status, occurredAt])
 }
