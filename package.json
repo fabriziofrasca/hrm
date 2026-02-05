@@ -1,0 +1,9 @@
+{
+  "name": "hrm",
+  "private": true,
+  "version": "0.0.1",
+  "packageManager": "pnpm@latest",
+  "scripts": {
+    "dev:api": "pnpm --filter api start:dev"
+  }
+}
