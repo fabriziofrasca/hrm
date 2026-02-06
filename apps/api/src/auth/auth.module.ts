@@ -12,9 +12,10 @@ import { JwtStrategy } from "./jwt.strategy";
     JwtModule.registerAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
-        secret: config.get<string>("JWT_ACCESS_SECRET") ?? "dev_secret_change_me",
+        secret: config.get<string>("JWT_ACCESS_SECRET") || "dev_secret_change_me",
         signOptions: {
-          expiresIn: (config.get<string>("JWT_ACCESS_TTL") ?? "15m") as any,
+          // 900 secondi = 15 minuti (tipo sempre valido, niente rogne TS)
+          expiresIn: 900,
         },
       }),
     }),
